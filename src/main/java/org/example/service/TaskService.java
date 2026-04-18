@@ -7,10 +7,10 @@ import org.example.model.TaskSummaryDTO;
 import org.example.model.User;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 public class TaskService {
     private final Map<String, Task> taskStore = new LinkedHashMap<>();
-    private  Notifier notifier;
+    private  final Notifier notifier;
     public TaskService(Notifier notifier) {
         this.notifier = notifier;
     }
@@ -19,15 +19,15 @@ public class TaskService {
         taskStore.put(task.getId(), task);
         notifier.notify(task);
     }
-    public Task findById(String id) {
-        if (taskStore.containsKey(id)) {
-            return taskStore.get(id);
-        }
-        return null;//    }
-    }
-// Optional<Task> findById(String id) {
-//    return Optional.ofNullable(taskStore.get(id)); // ✅ Thay if(obj != null)
-//}
+//    public Task findById(String id) {
+//        if (taskStore.containsKey(id)) {
+//            return taskStore.get(id);
+//        }
+//        return null;
+//    }
+     public Optional<Task> findById(String id) {
+    return Optional.ofNullable(taskStore.get(id)); // ✅ Thay if(obj != null)
+}
 
 
     public List<Task> findAll() {
@@ -63,6 +63,24 @@ public class TaskService {
        }
        task.assignee(user);
        notifier.notify(task);
+    }
+    public void updateTask(String id, String newTitle, Integer newPriority, TaskStatus newStatus) {
+        Task existTask = taskStore.get(id);
+
+        if(existTask == null) {
+            throw new TaskNotFoundException("haven't task");
+        }
+        if(newTitle != null && newTitle.isBlank()) {
+            existTask.setTitle(newTitle);
+        }
+        //không được dùng khai báo biến int trong việc so sánh với null nên phải dùng Integer
+        if(newPriority != null && newPriority >= 1 && newPriority <=5) {
+             existTask.setPriority(newPriority);
+        }
+        if(newStatus != null) {
+            existTask.setStatus(newStatus);
+        }
+        notifier.notify(existTask);
     }
 }
 

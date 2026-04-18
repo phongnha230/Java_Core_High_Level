@@ -4,7 +4,7 @@ public class Task {
     private final String id;
     private String title;
     private TaskStatus status;
-    private final int priority;
+    private  int priority;
     private User assignee;  //Composition: Task HAS-A User
 
     public Task(String id, String title, int priority, TaskStatus status) {
@@ -18,9 +18,17 @@ public class Task {
     }
 
     public void setStatus(TaskStatus status) {
+        if(status == null) {
+            throw new IllegalArgumentException("Status invalid");
+        }
         this.status = status;
     }
-
+    public void setPriority(int priority) {
+        if (priority < 1 || priority > 5) {
+            throw new IllegalArgumentException("Priority phải từ 1-5");
+        }
+        this.priority = priority;
+    }
     public String getId() {
         return id;
     }
@@ -48,6 +56,7 @@ public class Task {
         if(user == null) throw new IllegalArgumentException("User no null");
         this.assignee = user;
     }
+
    // user → Dữ liệu đầu vào (input parameter)
 //    assignee → Chỗ lưu trữ nội bộ (class field)
     public void markDone() {this.status = TaskStatus.DONE; }
