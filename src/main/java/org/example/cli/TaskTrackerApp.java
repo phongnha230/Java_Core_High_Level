@@ -33,7 +33,7 @@ public class TaskTrackerApp {
                 switch (choice) {
                     case "1" -> viewTask();
                     case "2" -> createTask();
-                    case "3" -> FindByStatus();
+                    case "3" -> findByStatus();
                     case "4" -> assginTask();
                     case "5" -> deleteTask();
                     case "6" -> findById();
@@ -88,9 +88,9 @@ public class TaskTrackerApp {
             tasks.forEach(System.out::println);  //Method Reference (tham chiếu phương thức), chỉ dùng khi mình có 1 logic còn hơn thì phải viết như java bình thường
     }
 
-    private void FindByStatus() {
-        System.out.println("Status (TODO/IN_PROGRESS/DONE");
-        TaskStatus status = TaskStatus.valueOf(readInput().toLowerCase());
+    private void findByStatus() {
+        System.out.print("Status (TODO/IN_PROGRESS/DONE): ");
+        TaskStatus status = TaskStatus.valueOf(readInput().toUpperCase().trim());
         var fill = service.findByStatus(status);
         if (fill.isEmpty()) System.out.println("No status in task");
         else fill.forEach(System.out::println);
