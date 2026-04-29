@@ -2,6 +2,7 @@ package org.example.cli;
 
 import org.example.exception.DuplicateTaskIdException;
 import org.example.exception.TaskNotFoundException;
+import org.example.model.Admin;
 import org.example.model.Task;
 import org.example.model.TaskStatus;
 import org.example.model.User;
@@ -16,7 +17,10 @@ public class TaskTrackerApp {
     private final TaskService service = new TaskService(new ConsoleNotifier());
 
     Scanner sc = new Scanner(System.in);
-
+    private final  User currentUser = new Admin("U001", "Phong", "Admin", 3);
+    private User getCurrentUser() {
+        return currentUser;
+    }
     public void start() {
         System.out.println("""
                 ╔══════════════════════════════════════╗
@@ -55,6 +59,11 @@ public class TaskTrackerApp {
                 [1] Xem tất cả  [2] Thêm task  [3] Lọc theo trạng thái
                 [4] Gán task   [5] Xóa task    [6]Tìm qua id của task [7]Update task [0] Thoát
                 """);
+        System.out.println("👤 Đang đăng nhập: " + currentUser.getName());
+        System.out.println("🔖 Role: " + currentUser.getRole());
+        if(currentUser instanceof Admin admin) {
+            System.out.println("Clearance Level: " +admin.clearanceLevel());
+        }
         System.out.print("👉 Nhập lựa chọn: ");
     }
 
@@ -104,7 +113,8 @@ public class TaskTrackerApp {
             String Uid = readInput();
             System.out.print("name:");
             String name = readInput();
-            service.assignTask(tid, new User(Uid, name, "Member"));
+            User userToAssign = new User(Uid, name, "Member");
+            service.assignTask(tid, userToAssign, getCurrentUser());
             System.out.println("✅ Đã gán!");
         } catch (TaskNotFoundException e) {
             System.out.println("task no exist " + e.getMessage());
@@ -119,7 +129,7 @@ public class TaskTrackerApp {
         try {
             System.out.println("Id:");
             String id = readInput();
-            service.deleTask(id);
+            service.deleTask(id, getCurrentUser());
             System.out.println("Delete successful!");
         } catch (TaskNotFoundException e) {
             System.out.println("Id exists: " + e.getMessage());

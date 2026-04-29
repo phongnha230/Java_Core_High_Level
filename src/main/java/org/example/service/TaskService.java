@@ -1,10 +1,7 @@
 package org.example.service;
 import org.example.exception.DuplicateTaskIdException;
 import org.example.exception.TaskNotFoundException;
-import org.example.model.Task;
-import org.example.model.TaskStatus;
-import org.example.model.TaskSummaryDTO;
-import org.example.model.User;
+import org.example.model.*;
 
 import java.util.*;
 
@@ -47,22 +44,38 @@ public class TaskService {
                         t.getAssignee() != null ? t.getAssignee().getName() : "Unassigned"))
                 .toList();
      }
-     public void deleTask(String id) {
-        if(taskStore.remove(id) == null) {
+     public void deleTask(String id, User currentUser) {
+        Task task = taskStore.get(id);
+        if(task == null) {
             throw new TaskNotFoundException(id);
-        } else {
-            System.out.println("Remove success!");
         }
 
+        //check access
+
+         boolean isAdmin = currentUser instanceof Admin admin && admin.clearanceLevel() >= 2;
+         boolean isOwner = task.getAssignee() != null && task.getAssignee().getId().equals(currentUser.getId());
+
+         if(!isAdmin && !isOwner) {
+             throw new SecurityException("You not accesses to remove this! (Just Admin or Owner accesses remove ");
+         }
+         taskStore.remove(id);
+         System.out.println("🔔 Task đã được xóa bởi: " + currentUser.getName());
     }
     //orElseThrow muốn dùng thằng này thì phải dùng Optional
-    public void assignTask(String taskId, User user) {
-       Task task = taskStore.get(taskId);
+    public void assignTask(String taskId, User user,User currentUser) {
+        if(!(currentUser instanceof Admin admin)) {
+            throw new SecurityException("🚫 Chỉ Admin mới được gán task cho người khác!");
+        }
+        if (admin.clearanceLevel() < 2) {
+            throw new SecurityException("🚫 Chỉ Admin level 2+ mới được gán task!");
+        }
+        Task task = taskStore.get(taskId);
        if(task == null) {
            throw new TaskNotFoundException("task no exist" + taskId);
        }
        task.assignee(user);
        notifier.notify(task);
+        System.out.println("🔔 Task được gán bởi: " + currentUser.getName());
     }
     public void updateTask(String id, String newTitle, Integer newPriority, TaskStatus newStatus) {
         Task existTask = taskStore.get(id);
