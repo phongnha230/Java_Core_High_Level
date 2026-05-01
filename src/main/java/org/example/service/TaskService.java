@@ -83,7 +83,7 @@ public class TaskService {
         if(existTask == null) {
             throw new TaskNotFoundException("haven't task");
         }
-        if(newTitle != null && newTitle.isBlank()) {
+        if(newTitle != null && !newTitle.isBlank()) {
             existTask.setTitle(newTitle);
         }
         //không được dùng khai báo biến int trong việc so sánh với null nên phải dùng Integer
